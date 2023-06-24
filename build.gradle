@@ -82,8 +82,13 @@ build {
 			def passwd = project.TOSHAYO_PWD
 			if (jks_file != null && passwd != null) {
 				def exec_line = [
-						"jarsigner", "-keystore", jks_file, "-storepass",
-						passwd, jar.archivePath, project.TOSHAYO_APP_ALIAS
+						"jarsigner",
+						"-sigalg", "SHA256withECDSA",
+						"-digestalg", "SHA-256",
+						"-keystore", jks_file,
+						"-storepass", passwd,
+						"-tsa", "http://timestamp.digicert.com",
+						jar.archivePath, project.TOSHAYO_APP_ALIAS
 				].execute()
 				exec_line.waitFor()
 				if(exec_line.exitValue() != 0) {
