@@ -13,6 +13,12 @@ public class SAOUIPatchMod {
     public static final String MOD_ID = "saouipatch";
     public static final String NAME = "SAO UI Patch";
     public static final String VERSION = "@@VERSION@@";
+    private static final String ENVIRONMENT_NAME = "@@ENVIRONMENT@@";
+
+    public static boolean isObfEnv() {
+        //noinspection ConstantValue,MismatchedStringCase
+        return ENVIRONMENT_NAME.equals("obf");
+    }
 
     @SuppressWarnings("unused")
     @Mod.EventHandler

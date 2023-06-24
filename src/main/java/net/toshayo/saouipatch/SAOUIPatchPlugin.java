@@ -120,6 +120,8 @@ public class SAOUIPatchPlugin implements IFMLLoadingPlugin, IClassTransformer {
         }
 
         static class SoundCorePlayVisitor extends MethodVisitor {
+            private static final String DEOBF_WORLD_FIELD = "theWorld";
+            private static final String OBF_WORLD_FIELD = "field_71441_e";
 
             protected SoundCorePlayVisitor(MethodVisitor mv) {
                 super(Opcodes.ASM5, mv);
@@ -131,7 +133,7 @@ public class SAOUIPatchPlugin implements IFMLLoadingPlugin, IClassTransformer {
                 Label endLabel = new Label();
 
                 mv.visitVarInsn(Opcodes.ALOAD, 0);
-                mv.visitFieldInsn(Opcodes.GETFIELD, "net/minecraft/client/Minecraft", "theWorld", "Lnet/minecraft/client/multiplayer/WorldClient;");
+                mv.visitFieldInsn(Opcodes.GETFIELD, "net/minecraft/client/Minecraft", SAOUIPatchMod.isObfEnv() ? OBF_WORLD_FIELD : DEOBF_WORLD_FIELD, "Lnet/minecraft/client/multiplayer/WorldClient;");
                 mv.visitJumpInsn(Opcodes.IFNULL, returnLabel);
 
                 super.visitCode();
