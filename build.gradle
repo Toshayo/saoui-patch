@@ -1,0 +1,97 @@
+buildscript {
+	repositories {
+		maven { url = 'https://maven.minecraftforge.net/' }
+		maven { url = 'https://plugins.gradle.org/m2' }
+		mavenCentral()
+	}
+	dependencies {
+		classpath ('com.anatawa12.forge:ForgeGradle:1.2-1.1.0') {
+            		changing = true
+        	}
+	}
+}
+
+apply plugin: 'forge'
+
+version = mod_version
+
+compileJava.options.encoding = 'UTF-8'
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
+
+minecraft {
+	version = "1.7.10-10.13.4.1614-1.7.10"
+
+	replace "@@VERSION@@", project.version
+
+	runDir = "run"
+}
+
+repositories {
+	maven {
+		name = 'ModMaven'
+		url = 'https://modmaven.dev'
+	}
+	flatDir {
+		dir 'libs/'
+	}
+}
+
+dependencies {
+	// Handles deobfuscation of saoui in dev environment
+	implementation 'codechicken:CodeChickenCore:1.7.10-1.0.4.29:dev'
+	implementation 'codechicken:CodeChickenLib:1.7.10-1.1.3.140:dev'
+
+	implementation 'blank:saoui-1.7.10:1.6.0'
+}
+
+processResources {
+	inputs.property "version", project.mod_version
+	inputs.property "credits", project.credits
+	
+	// replace stuff in mcmod.info, nothing else
+	from(sourceSets.main.resources.srcDirs) {
+		include 'mcmod.info'
+		
+		// replace version and mcversion
+		expand 'version':project.mod_version, 'credits':project.credits
+	}
+		
+	// copy everything else, thats not the mcmod.info
+	from(sourceSets.main.resources.srcDirs) {
+		exclude 'mcmod.info'
+	}
+}
+
+jar {
+	manifest {
+		attributes([
+				"Implementation-Title"    : project.name,
+				"Implementation-Version"  : project.version,
+				"FMLCorePluginContainsFMLMod": "true",
+				"FMLCorePlugin": "net.toshayo.saouipatch.SAOUIPatchPlugin",
+				"Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+		])
+	}
+}
+
+build {
+	doLast {
+		if(project.hasProperty("TOSHAYO_JKS")) {
+			println "Using Project properties for jar signing."
+			def jks_file = project.TOSHAYO_JKS
+			def passwd = project.TOSHAYO_PWD
+			if (jks_file != null && passwd != null) {
+				def exec_line = [
+						"jarsigner", "-keystore", jks_file, "-storepass",
+						passwd, jar.archivePath, project.TOSHAYO_APP_ALIAS
+				].execute()
+				exec_line.waitFor()
+				if(exec_line.exitValue() != 0) {
+					throw new RuntimeException("Signing failed!")
+				}
+			}
+		} else {
+			println 'No signing secrets found, build will not be signed.'
+		}
+	}
+}

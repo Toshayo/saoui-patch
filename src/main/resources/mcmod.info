@@ -1,0 +1,10 @@
+[
+	{
+		"modid": "saouipatch",
+		"name": "SAO UI Patch",
+		"description": "Fixes some issues of latest dev build of SAO UI",
+		"version":"${version}",
+		"mcversion": "1.7.10",
+		"credits": "${credits}"
+	}
+]
